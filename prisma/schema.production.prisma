@@ -1,0 +1,45 @@
+// AceWears — Production Prisma schema (PostgreSQL)
+// Use this when deploying to Vercel.
+//
+// To switch to production schema:
+//   cp prisma/schema.production.prisma prisma/schema.prisma
+//   npx prisma generate
+//   npx prisma db push   # creates tables in your Postgres database
+//
+// To switch back to local SQLite dev schema:
+//   git checkout prisma/schema.prisma
+//   npx prisma generate
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]  // Vercel uses debian-openssl-3.0.x
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL", env("DATABASE_URL"))
+}
+
+// ====================================================================
+// IMPORTANT: All model definitions should match prisma/schema.prisma
+// Copy the model definitions from schema.prisma into this file before
+// running db push. The models below are placeholders showing the
+// PostgreSQL-compatible syntax. Replace with your actual models.
+// ====================================================================
+
+// ====== Identity & Accounts ======
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String?
+  phone         String?
+  role          String   @default("CUSTOMER") // CUSTOMER | ADMIN | STAFF | SELLER
+
+  // PostgreSQL-specific: timestamp defaults
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
